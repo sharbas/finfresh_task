@@ -50,8 +50,30 @@ const getTaskRuns = async (req, res) => {
 // function for update the config data
 
 const updateConfig=async (req,res)=>{
-    try{
+  const   {directory,interval,magicString}=req.body
 
+  if (!directory || typeof directory !== 'string' || !directory.trim()) {
+    return res.status(400).json({ error: 'Directory is required' });
+  }
+  else if(!interval || typeof interval !== 'string' || !interval.trim()) {
+    return res.status(400).json({ error: 'Interval is required' });
+  }
+  else if (!magicString || typeof magicString !== 'string' || !magicString.trim()) {
+    return res.status(400).json({ error: 'Magic String is required' });
+  }
+
+  const trimmedDirectory = directory.trim();
+  const trimmedInterval = interval.trim();
+  const trimmedMagicString = magicString.trim();
+
+
+
+    try{
+   const config = await configModel.findOneAndUpdate(
+      {},
+      { directory: `./${trimmedDirectory}`, interval: `*/${trimmedInterval} * * * *`, magicString: trimmedMagicString },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
         
     }catch(error){
         res.status(500).json({error:error.message})
